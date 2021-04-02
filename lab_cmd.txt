@@ -1,0 +1,553 @@
+Lab1 Exercise
+
+Task 1 Install Ethereum (Geth)
+
+//
+sudo apt-get install software-properties-common
+sudo add-apt-repository -y ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt update
+sudo apt install ethereum
+
+//
+sudo apt-get install geth puppeth
+sudo apt-get install gcc g++ make
+mkdir blockchain
+cd blockchain
+
+Task 2 Create a Genesis File
+
+//
+puppeth
+ftec5520
+2
+1
+1
+(enter)
+(enter)
+5520
+2
+2
+(ctrl + c, 退出)
+
+vim ftec5520.json
+
+
+Task3: Initialize the blockchain
+
+geth --datadir ~/blockchain/ init ~/blockchain/ftec5520.json
+sudo apt install tree
+tree ./
+geth --datadir ~/blockchain/ account new
+(
+password: ftec5520
+)
+tree ./
+cd keystore/
+ls
+touch startnode.sh
+ls
+rm startnode.sh
+cd ..
+ls
+touch startnode.sh
+vim startnode.sh
+(
+geth --nousb --cache 512 --ipcpath ~/Library/Ethereum/geth.ipc --networkid 5520 --datadir ~/blockchain console >> ftec5520-lab1.log
+)
+chmod +x startnode.sh
+ls
+./startnode.sh
+ctrl+c -> 
+vim startnode.sh
+ls
+vim ftec5520
+vim startnode.sh
+(
+geth --nousb --cache 512 --ipcpath ~/Library/Ethereum/geth.ipc --networkid 5520 --datadir ~/blockchain console 2>> ftec5520-lab1.log
+)
+./startnode.sh
+ls
+vim ftec5520-lab1.log
+
+
+Task4: Create Accounts & Check Balances
+
+./startnode.sh
+web3.eth.accounts
+exit
+ls
+cd keystore/
+ls
+cd ../
+ls
+geth account list
+./startnode.sh
+personal.newAccount()
+(
+password: ftec5520
+
+// personal.newAccount("ftec5520")
+)
+web3.eth.accounts
+var primaryAccount = web3.eth.accounts[0]
+primaryAccount
+web3.eth.getBalance(primaryAccount)
+
+
+Task 5: Mining for Ether & Transfer Ether
+miner.start(4)
+// open another window
+
+cd blockchain // another window
+tail ftec5520-lab1.log 	// another window
+(tail -f ftec5520-lab1.log)
+vim ftec5520-lab1.log	// another window
+
+miner.stop()
+web3.eth.blockNumber
+miner.start()
+miner.stop()
+
+exit
+./startnode.sh
+miner.start()
+
+
+task 6:
+cd ../  (back to root dir)
+mkdir voting_dapp
+cd voting_dapp
+curl -fsl https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install -y nodejs
+npm
+node -v
+npm -v 
+npm install ganache-cli
+npm init -f
+ls
+npm install formidable --save
+ls
+vim package.json
+npm install ganache-cli
+node_modules/.bin/ganache-cli
+
+(
+另外一个窗口
+cd voting_dapp
+touch Voting.sol
+vim Voting.sol
+// 复制代码
+npm install solc@0.5
+npm install web3
+node_modules/.bin/solcjs --bin --abi Voting.sol
+ls
+node
+Web3 = require('web3')
+web3 = new Web3("http://localhost:8545")
+web3.eth.getAccounts(console.log)
+bytecode = fs.readFileSync('Voting_sol_Voting.bin').toString()
+abi = JSON.parse(fs.readFileSync('Voting_sol_Voting.abi').toString())
+deployedContract = new web3.eth.Contract(abi)
+listOfCandidates = ['Rama', 'Nick', 'Jose']
+
+//
+deployedContract.deploy({
+data: bytecode,
+arguments: [listOfCandidates.map(name=>web3.utils.asciiToHex(name))]
+}).send({
+from: '0x4188D12325A9Cc2FAeeF46DF4450537F84ed48E9',
+gas: 1500000,
+gasPrice: web3.utils.toWei('0.00003', 'ether')
+}).then((newContractInstance) => {
+deployedContract.options.address = newContractInstance.options.address
+console.log(newContractInstance.options.address)
+});
+//
+
+deployedContract.options.address
+deployedContract.methods.totalVotesFor(web3.utils.asciiToHex('Rama')).call(console.log)
+deployedContract.methods.voteForCandidate(web3.utils.asciiToHex('Rama')).send({from:'0x4188D12325A9Cc2FAeeF46DF4450537F84ed48E9'}).then((f)=>console.log(f))
+// deployedContract.methods.voteForCandidate(web3.utils.asciiToHex('Nick')).send({from:'0x4188D12325A9Cc2FAeeF46DF4450537F84ed48E9'}).then((f)=>console.log(f))
+)
+
+
+
+
+
+
+
+
+
+
+Q1:
+1) Installing from PPA
+2) make sure ports 30303 and 8000 are accessible via TCP
+when setting up private blockchain on a cloud instance
+3) create some necessary folders
+4) data regarding our initial genesis block
+5) create a script that initializes our private blockchain
+6) create a daemon to make it such that our blockchain node runs in the background.
+7) Connecting to the blockchain and executing remote calls 
+
+Q1：
+连接到公链的步骤如下：
+1）设置钱包来管理公链帐户
+2）连接到以太坊节点
+-使用Geth或Parity运行自己的Ethereum节点。但这需要从区块链下载大量数据并保持同步，很麻烦
+-比较方便的方法是，使用Infura访问Ethereum节点。Infura是一个免费提供Ethereum节点的服务。
+3）更新项目设置
+-修改truffle-config.js文件, 用Truffle的话
+4）访问以太坊节点
+
+
+本地区块链(Ganache) vs 太坊公链
+
+Q1:
+To connect to the mainnet network (real public world Ethereum network),
+it needs to run geth command:
+	geth --datadir ~/blockchain --networkid 1
+Here the "--datadir ~/blockchain" means where to store the blockchain,
+"--networkid" is used to specify the network ID, 1 is the ID of the mainnet network
+
+Q2:
+(1)
+the process of mining:
+a) use proof of work (PoW) to finish the construction of a new block
+for example, hashing calculation with a Nonce
+b) when finding the Nonce, it means succeed and broadcast to the entire network
+c) chain the new block and get reward
+
+(2)
+content:
+a) Timestamp – the time when the block mined.
+b) Block number – the length of the blockchain in blocks.
+c) Difficulty – the effort required to mine the block.
+d) mixHash – a unique identifier for that block.
+e) A parent hash – the unique identifier for previous block.
+f) Transactions list – the transactions included in the block.
+g) State root – the entire state of the system: account balances, contract storage, contract code and account nonces are inside.
+h) Nonce – a hash that, with the mixHash, show the proof of work.
+
+identify a block:
+- mixHash – a unique identifier for that block
+
+
+Q3:
+deploy on the blockchain created in tast1~5:
+1) Install nodejs, ganache-cli ()
+2) Install Solidity compiler (solc) and web3:
+3) Write and compile the smart contract
+	for example, generate bytecode 
+	set Ether for gas
+4) Deployment script & Access to an Ethereum node
+	run your own
+	or via an API 
+	(sending a transaction containing the code of the compiled smart contract)
+
+
+deploy on other types of Eth networks:
+1) install Meta-mask Chrome Extension
+2) Create a wallet at meta-mask
+3) Select any one test network, e.g. mainnet/Rinkeby/modern test net, etc
+4) Add some dummy Ethers in your wallet
+5) Use editor remix to write the smart contract in Solidity
+6) Create a .sol extension file
+7) Deploy contract by pressing the deploy button in Remix window
+
+
+Q4:
+1)
+multi-node (more than two nodes), say, N nodes here for illustration.
+
+Step 1: Launch N EC2 instances.
+	all can be "t2.medium, 2 vCPU, 4 GB RAM, 8G SSD" configuration
+	all nodes are with the same security group
+	all allows TCP 30303 by default
+Step 2: Install geth client on Node 1
+	Access to Node 1 with ssh & key
+Step 3: Prepare the Genesis.json & Init the geth with Genesis.json
+	ensure all nodes share the same genesis block
+Step 4: Launch geth now	for Node 1
+	two screens in parallel: one for console, another for log
+Step 5: Create an Account on Node 1 & Start Mining
+	personal.newAccount()
+	miner.start()
+Step 6: Repeat Step 2-6 on other Nodes ( N-1 remaining nodes )
+	the same Genesis.json is used when init on other Nodes ( N-1 remaining nodes )
+Step 7: Peering - peer all the nodes
+	"admin.peers" for every Node
+	"admin.nodeInfo.enode" Obtain enode information from a Node
+	Add this information to other Nodes ( N-1 remaining nodes )
+	then all nodes are peering each other.
+Step 8: Send Ethers Between Accounts	
+	to verify if the setup is successful
+
+Do not forget Closing to save money
+
+
+2)
+multi-node (more than two nodes), say, N nodes here for illustration.
+deploy the contract on Node 1
+see how other Nodes ( N-1 remaining nodes ) accesses this contract.
+	
+Step 1: Install node.js and web3 on all N nodes	
+	command lines: "node -v", "npm -v" 
+		to check whether the installation is successful
+	check on all nodes
+Step 2: Access Blockchain through web3 in Node Console
+	all nodes:
+		use split screen: geth client & node console
+		"node", "admin.startRPC()" ... 
+		command line: "web3.eth.accounts" to verify
+Step 3: Deploy Contract on Node 1
+	set "abi, byteCode"
+	requires gas & a list of candidate
+	execute the functions for verification
+		"totalVoteFor", "voteForCandidate"
+Step 4: Access Contract from other Nodes ( N-1 remaining nodes )
+	obtain deployed address from Node 1
+	for ABI, define VotingContract with the same abi on other Nodes ( N-1 remaining nodes )
+	for address, define the contract instance based on the VotingContract 
+		 the address obtained from Node 1
+Step 5: Verification
+	accounts on all nodes are acting on the same contract
+	all nodes see the same result
+		for example: vote count for Rama
+	
+Do not forget Closing to save money	
+	
+
+
+3.6
+/*
+https://github.com/aws-samples/non-profit-blockchain/blob/master/ngo-fabric/README.md
+*/
+
+
+cd ~
+git clone https://github.com/aws-samples/non-profit-blockchain.git
+sudo pip install awscli --upgrade
+
+
+export REGION=us-east-1
+export STACKNAME=non-profit-amb
+(
+echo $REGION
+echo $STACKNAME
+cd ~/non-profit-blockchain/ngo-fabric
+vim amb.sh
+:q!
+vim amb.yaml
+:q!
+)
+cd ~/non-profit-blockchain/ngo-fabric
+./amb.sh
+
+(
+pwd
+echo $REGION
+)
+
+//skip these two CMLs
+export REGION=us-east-1
+cd ~/non-profit-blockchain/ngo-fabric
+//
+
+(
+ls vpc-client-node.sh
+vim vpc-client-node.sh
+:q!
+vim fabric-client-node.yaml
+:q!
+)
+
+
+aws ec2 delete-key-pair --key-name ngo-keypair
+./vpc-client-node.sh
+
+(
+ls ~/*.pem
+)
+
+cd ~
+ssh ec2-user@<dns of EC2 instance> -i ~/<Fabric network name>-keypair.pem
+ssh ec2-user@ec2-3-239-39-1.compute-1.amazonaws.com -i ~/ngo-keypair.pem
+
+// ssh ec2-user@ec2-34-239-254-145.compute-1.amazonaws.com -i ~/ngo-keypair.pem
+
+// ssh -i ~/ngo-keypair.pem ec2-34-239-254-145.compute-1.amazonaws.com
+
+(
+or:
+cd ~/non-profit-blockchain/ngo-fabric
+ssh -i ~/ngo-keypair.pem ec2-user@ec2-44-192-37-33.compute-1.amazonaws.com
+)
+
+// skip this one CML
+cd ~
+
+git clone https://github.com/aws-samples/non-profit-blockchain.git
+
+(
+ls -l
+)
+
+(
+echo $REGION
+)
+export REGION=us-east-1
+(
+echo $REGION
+)
+
+cd ~/non-profit-blockchain/ngo-fabric
+(
+or:
+cd non-profit-blockchain/ngo-fabric/
+pwd
+ls
+)
+
+cp templates/exports-template.sh fabric-exports.sh
+(
+or:
+cd templates/
+ls
+cp exports-template.sh ../fabric-exports.sh
+cd ..
+ls
+ls -l
+vim fabric-exports.sh
+:q!
+)
+
+source fabric-exports.sh
+source ~/peer-exports.sh
+(
+or:
+vim peer-exports.sh
+:q!
+source peer-exports.sh
+)
+
+echo $PEERSERVICEENDPOINT
+echo $MSP
+(
+echo $CASERVICEENDPOINT
+)
+
+cat ~/peer-exports.sh
+
+aws s3 cp s3://us-east-1.managedblockchain/etc/managedblockchain-tls-chain.pem /home/ec2-user/managedblockchain-tls-chain.pem	
+
+export PATH=$PATH:/home/ec2-user/go/src/github.com/hyperledger/fabric-ca/bin
+(
+pwd
+)
+
+//
+fabric-ca-client enroll -u https://$ADMINUSER:$ADMINPWD@$CASERVICEENDPOINT --tls.certfiles /home/ec2-user/managedblockchain-tls-chain.pem -M /home/ec2-user/admin-msp
+
+//
+mkdir -p /home/ec2-user/admin-msp/admincerts
+cp ~/admin-msp/signcerts/* ~/admin-msp/admincerts/
+cd ~/non-profit-blockchain/ngo-fabric
+
+export REGION=us-east-1
+export NETWORKID=<>
+export NETWORKNAME=ngo
+
+export VPCENDPOINTSERVICENAME=$(aws managedblockchain get-network --region $REGION --network-id $NETWORKID --query 'Network.VpcEndpointServiceName' --output text)
+echo $VPCENDPOINTSERVICENAME
+
+CD ~/non-profit-blockchain/ngo-fabric
+./3-vpc-client-node.sh
+
+ssh -i ~/ngo-keypair.pem <dns>
+
+cd ~
+
+git clone https://github.com/aws-samples/non-profit-blockchain.git
+cd ~/non-profit-blockchain/ngo-fabric
+cp templates/exports-template.sh fabric-exports.sh
+vi fabric-exports.sh
+
+export NETWORKID=<>
+export MEMBERID=<>
+
+export ADMINUSER=admin
+export ADMINPWD=Adminpwd1!
+
+export NETWORKNAME=ngo
+export MEMBERNAME=member
+
+cd ~/non-profit-blockchain/ngo-fabric
+source fabric-exports.sh
+
+cat ~/peer-exports.sh
+source ~/peer-exports.sh
+aws s3 cp s3://us-east-1.managedblockchain/etc/managedblockchain-tls-chain.pem /home/ec2-user/managedblockchain-tls-chain.pem
+
+export PATH=$PATH:/home/ec2-user/go/src/github.com/hyperledger/fabric-ca/bin
+//
+
+cd 
+fabric-ca-client enroll -u https://$ADMINUSER:$ADMINPWD@$CASERVICEENDPOINT --tls.certfiles /home/ec2-user/managedblockchain-tls-chain.pem -M /home/ec2-user/admin-msp
+
+cd non-profit-blockchain/
+cd ngo-fabric/
+cp configtx.yaml ~
+sed -i "s/__MEMBERID__/$MEMBERID/g" ~/configtx.yaml
+(
+vim configtx.yaml
+vim ~/configtx.yaml
+man sed
+vim configtx.yaml
+vim ~/configtx.yaml
+)
+
+
+cd
+mkdir -p /home/ec2-user/admin-msp/admincerts
+cp ~/admin-msp/signcerts/* ~/admin-msp/admincerts/
+cd ~/non-profit-blockchain/ngo-fabric
+
+echo $MEMBERID
+
+// skip
+cp ~/non-profit-blockchain/ngo-fabric/configtx.yaml ~
+vi ~/configtx.yaml
+//
+
+docker exec cli configtxgen -outputCreateChannelTx /opt/home/$CHANNEL.pb -profile OneOrgChannel -channelID $CHANNEL --configPath /opt/home/
+
+ls -lt ~/$CHANNEL.pb
+
+cd
+cd fabric-samples/chaincode/hyperledger/fabric/peer
+pwd
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer channel create -c $CHANNEL -f /opt/home/$CHANNEL.pb -o $ORDERER --cafile $CAFILE --tls --timeout 900s
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer channel fetch oldest /opt/home/fabric-samples/chaincode/hyperledger/fabric/peer/$CHANNEL.block -c $CHANNEL -o $ORDERER --cafile /opt/home/managedblockchain-tls-chain.pem --tls
+
+ls -lt /home/ec2-user/fabric-samples/chaincode/hyperledger/fabric/peer
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer channel join -b $CHANNEL.block -o $ORDERER --cafile $CAFILE --tls
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer chaincode install -n $CHAINCODENAME -v $CHAINCODEVERSION -p $CHAINCODEDIR
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer chaincode instantiate -o $ORDERER -C $CHANNEL -n $CHAINCODENAME -v $CHAINCODEVERSION -c '{"Args":["init", "a", "100", "b", "200"]}' --cafile $CAFILE --tls
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer chaincode query -C $CHANNEL -n $CHAINCODENAME -c '{"Args":["query", "a"]}'
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer chaincode invoke -o $ORDERER -C $CHANNEL -n $CHAINCODENAME -v $CHAINCODEVERSION -c '{"Args":["invoke", "a", "b", "10"]}' --cafile $CAFILE --tls
+
+docker exec -e "CORE_PEER_TLS_ENABLE=true" -e "CORE_PEER_TLS_ROOTCERT_FILE=/opt/home/managedblockchain-tls-chain.pem" -e "CORE_PEER_ADDRESS=$PEER" -e "CORE_PEER_LOCALMSPID=$MSP" -e "CORE_PEER_MSPCONFIGPATH=$MSP_PATH" cli peer chaincode query -C $CHANNEL -n $CHAINCODENAME -c '{"Args":["query", "a"]}'
+
+
+
+
+
+
